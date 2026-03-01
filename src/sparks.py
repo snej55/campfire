@@ -1,5 +1,6 @@
 import pygame, math
 
+
 class Spark:
     def __init__(self, loc, angle, speed, color, scale=1, spinny=False):
         self.loc = list(loc)
@@ -40,7 +41,7 @@ class Spark:
         # a bunch of options to mess around with relating to angles...
         self.point_towards(math.pi / 2, 0.02, dt)
         self.velocity_adjust(0.975, 0, 1, dt)
-        #self.angle += 0.1 * dt
+        # self.angle += 0.1 * dt
 
         self.speed -= 0.1 * dt
 
@@ -49,19 +50,48 @@ class Spark:
     def draw(self, surf, scroll=[0, 0]):
         if not self.spinny:
             points = [
-                [self.loc[0] - scroll[0] + math.cos(self.angle) * self.speed * self.scale, self.loc[1] - scroll[1] + math.sin(self.angle) * self.speed * self.scale],
-                [self.loc[0] - scroll[0] + math.cos(self.angle + math.pi / 2) * self.speed * self.scale * 0.5, self.loc[1] - scroll[1] + math.sin(self.angle + math.pi / 2) * self.speed * self.scale * 0.5],
-                [self.loc[0] - scroll[0] - math.cos(self.angle) * self.speed * self.scale * 3.5, self.loc[1] - scroll[1] - math.sin(self.angle) * self.speed * self.scale * 3.5],
-                [self.loc[0] - scroll[0] + math.cos(self.angle - math.pi / 2) * self.speed * self.scale * 0.5, self.loc[1] - scroll[1] - math.sin(self.angle + math.pi / 2) * self.speed * self.scale * 0.5],
-                ]
+                [
+                    self.loc[0] - scroll[0] + math.cos(self.angle) * self.speed * self.scale,
+                    self.loc[1] - scroll[1] + math.sin(self.angle) * self.speed * self.scale,
+                ],
+                [
+                    self.loc[0] - scroll[0] + math.cos(self.angle + math.pi / 2) * self.speed * self.scale * 0.5,
+                    self.loc[1] - scroll[1] + math.sin(self.angle + math.pi / 2) * self.speed * self.scale * 0.5,
+                ],
+                [
+                    self.loc[0] - scroll[0] - math.cos(self.angle) * self.speed * self.scale * 3.5,
+                    self.loc[1] - scroll[1] - math.sin(self.angle) * self.speed * self.scale * 3.5,
+                ],
+                [
+                    self.loc[0] - scroll[0] + math.cos(self.angle - math.pi / 2) * self.speed * self.scale * 0.5,
+                    self.loc[1] - scroll[1] - math.sin(self.angle + math.pi / 2) * self.speed * self.scale * 0.5,
+                ],
+            ]
         else:
             points = [
-                (self.loc[0] + math.cos(self.angle + math.sin(self.speed * 20) * math.pi * 0.5) * self.speed * 3 - scroll[0], self.loc[1] + math.sin(self.angle + math.sin(self.speed * 20) * math.pi * 0.5) * self.speed * 3 - scroll[1]),
-                (self.loc[0] + math.cos(self.angle + math.pi * 0.125) * self.speed * 2 - scroll[0], self.loc[1] + math.sin(self.angle + math.pi * 0.125) * self.speed * 2 - scroll[1]),
-                (self.loc[0] + math.cos(self.angle + math.pi * 0.5) * self.speed * 0.5 - scroll[0], self.loc[1] + math.sin(self.angle + math.pi * 0.5) * self.speed * 0.5 - scroll[1]),
-                (self.loc[0] + math.cos(self.angle + math.pi) * self.speed * 3 - scroll[0], self.loc[1] + math.sin(self.angle + math.pi) * self.speed * 3 - scroll[1]),
-                (self.loc[0] + math.cos(self.angle - math.pi * 0.5) * self.speed * 0.5 - scroll[0], self.loc[1] + math.sin(self.angle - math.pi * 0.5) * self.speed * 0.5 - scroll[1]),
-                (self.loc[0] + math.cos(self.angle - math.pi * 0.125) * self.speed * 2 - scroll[0], self.loc[1] + math.sin(self.angle - math.pi * 0.125) * self.speed * 2 - scroll[1])
+                (
+                    self.loc[0] + math.cos(self.angle + math.sin(self.speed * 20) * math.pi * 0.5) * self.speed * 3 - scroll[0],
+                    self.loc[1] + math.sin(self.angle + math.sin(self.speed * 20) * math.pi * 0.5) * self.speed * 3 - scroll[1],
+                ),
+                (
+                    self.loc[0] + math.cos(self.angle + math.pi * 0.125) * self.speed * 2 - scroll[0],
+                    self.loc[1] + math.sin(self.angle + math.pi * 0.125) * self.speed * 2 - scroll[1],
+                ),
+                (
+                    self.loc[0] + math.cos(self.angle + math.pi * 0.5) * self.speed * 0.5 - scroll[0],
+                    self.loc[1] + math.sin(self.angle + math.pi * 0.5) * self.speed * 0.5 - scroll[1],
+                ),
+                (
+                    self.loc[0] + math.cos(self.angle + math.pi) * self.speed * 3 - scroll[0],
+                    self.loc[1] + math.sin(self.angle + math.pi) * self.speed * 3 - scroll[1],
+                ),
+                (
+                    self.loc[0] + math.cos(self.angle - math.pi * 0.5) * self.speed * 0.5 - scroll[0],
+                    self.loc[1] + math.sin(self.angle - math.pi * 0.5) * self.speed * 0.5 - scroll[1],
+                ),
+                (
+                    self.loc[0] + math.cos(self.angle - math.pi * 0.125) * self.speed * 2 - scroll[0],
+                    self.loc[1] + math.sin(self.angle - math.pi * 0.125) * self.speed * 2 - scroll[1],
+                ),
             ]
         pygame.draw.polygon(surf, self.color, points)
-

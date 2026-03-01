@@ -64,7 +64,8 @@ class App:
             "nautilus": load_animation("nautilus.png", 28, 17, 6),
             "pin": load_image("pin.png"),
             "shell": load_image("shell.png"),
-            "fire": load_animation("fire.png", 5, 5, 9)
+            "fire": load_animation("fire.png", 5, 5, 9),
+            "light": load_image("light.png"),
         }
 
         self.kickup_palette = load_palette(self.assets["pin"])
@@ -84,16 +85,29 @@ class App:
         self.pufferfish = []
         for loc in self.tile_map.tile_map.copy():
             if self.tile_map.tile_map[loc]["type"] == "pufferfish":
-                self.pufferfish.append(Pufferfish(self, [self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE], self.assets["pufferfish"]))
+                self.pufferfish.append(
+                    Pufferfish(
+                        self,
+                        [self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE],
+                        self.assets["pufferfish"],
+                    )
+                )
                 del self.tile_map.tile_map[loc]
         self.pins = []
 
         self.nautilus = []
         for loc in self.tile_map.tile_map.copy():
             if self.tile_map.tile_map[loc]["type"] == "nautilus":
-                self.nautilus.append(Nautilus(self, [self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE], self.assets["nautilus"]))
+                self.nautilus.append(
+                    Nautilus(
+                        self,
+                        [self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE],
+                        self.assets["nautilus"],
+                    )
+                )
                 del self.tile_map.tile_map[loc]
         self.shells = []
+        self.light = self.assets["light"]
 
         self.kickup = []
         self.sparks = []
@@ -103,16 +117,20 @@ class App:
 
         self.player = Player(self, [6, 7], [20, 15])
         self.screen_shake = 0
-    
+
     def update_fire(self, render_scroll):
         # [pos, frame]
         for i, f in sorted(enumerate(self.fire), reverse=True):
-            f[0][1] -= 2 * self.dt;
-            f[1] += 0.5 * self.dt
-            if f[1] >= len(self.assets['fire']):
-                self.fire.pop(i)
-            else:
-                self.screen.blit(self.assets['fire'][math.floor(f[1])], (f[0][0] - render_scroll[0] - 2.5, f[0][1] - render_scroll[1] - 2.5))
+            f[2] -= 1 * self.dt
+            if f[2] < 0:
+                f[0][1] -= 4 * self.dt
+                f[1] += 0.9 * self.dt
+                if f[1] >= len(self.assets["fire"]):
+                    self.fire.pop(i)
+                else:
+                    self.screen.blit(
+                        self.assets["fire"][math.floor(f[1])], (f[0][0] - render_scroll[0] - 2.5, f[0][1] - render_scroll[1] - 2.5)
+                    )
 
     def update_kickup(self, render_scroll):
         # particle: [pos, vel, size, color]
@@ -157,14 +175,17 @@ class App:
         if self.player.ad > self.player.death_time:
             self.scroll[0] += (self.player.get_rect().centerx - self.screen.get_width() * 0.5 - self.scroll[0]) / 30 * self.dt
             self.scroll[1] += (self.player.get_rect().centery - self.screen.get_height() * 0.5 - self.scroll[1]) / 30 * self.dt
-        
+
         for fish in self.pufferfish:
             fish.update(self.dt, self.player)
         for fish in self.nautilus:
             fish.update(self.dt, self.player)
 
         # do the rendering
-        screen_shake_offset = (random.random() * self.screen_shake - self.screen_shake / 2, random.random() * self.screen_shake - self.screen_shake / 2)
+        screen_shake_offset = (
+            random.random() * self.screen_shake - self.screen_shake / 2,
+            random.random() * self.screen_shake - self.screen_shake / 2,
+        )
         render_scroll = (int(self.scroll[0] + screen_shake_offset[0]), int(self.scroll[1] + screen_shake_offset[1]))
         self.screen_shake = max(0, self.screen_shake - 1 * self.dt)
         self.screen.blit(pygame.transform.scale(self.assets["background"], self.screen.get_size()), (0, 0))
@@ -175,9 +196,16 @@ class App:
                 pin.kill = True
             if pin.kill:
                 for _ in range(random.randint(5, 10)):
-                    speed = random.random() 
+                    speed = random.random()
                     angle = math.pi * 2 * random.random()
-                    self.kickup.append([[pin.pos[0], pin.pos[1]], [math.cos(angle) * speed, math.sin(angle) * speed], random.random() + 9, [255, 255, 255, 100]])
+                    self.kickup.append(
+                        [
+                            [pin.pos[0], pin.pos[1]],
+                            [math.cos(angle) * speed, math.sin(angle) * speed],
+                            random.random() + 9,
+                            [255, 255, 255, 100],
+                        ]
+                    )
                 for _ in range(random.randint(5, 10)):
                     speed = random.random() + 1
                     angle = pin.direction + math.pi + random.random() - 0.5
@@ -198,6 +226,7 @@ class App:
         self.tile_map.draw_decor(self.screen, render_scroll)
         if self.player.ad > self.player.death_time:
             self.player.draw(self.screen, render_scroll)
+            # self.screen.blit(self.light, (self.player.get_rect().centerx - self.light.get_width() * 0.5 - render_scroll[0], self.player.get_rect().centery - self.light.get_height() * 0.5 - render_scroll[1]), area=None, special_flags=pygame.BLEND_RGBA_SUB)
         for fish in self.pufferfish:
             if fish.get_rect().colliderect(self.player.get_rect()):
                 self.player.die()
@@ -211,7 +240,13 @@ class App:
         self.update_kickup(render_scroll)
         self.update_sparks(render_scroll)
         for shockwave in self.shockwaves.copy():
-            pygame.draw.circle(self.screen, shockwave[2], (shockwave[0][0] - render_scroll[0], shockwave[0][1] - render_scroll[1]), min(shockwave[4] * 1.5, shockwave[1] * 1.5), int(math.ceil(max(1, shockwave[4] - shockwave[1]) / 4)))
+            pygame.draw.circle(
+                self.screen,
+                shockwave[2],
+                (shockwave[0][0] - render_scroll[0], shockwave[0][1] - render_scroll[1]),
+                min(shockwave[4] * 1.5, shockwave[1] * 1.5),
+                int(math.ceil(max(1, shockwave[4] - shockwave[1]) / 4)),
+            )
             if shockwave[1] - 1 > shockwave[4]:
                 if type(shockwave[2]) == tuple:
                     shockwave[2] = list(shockwave[2])
@@ -221,7 +256,9 @@ class App:
                 if shockwave[2][2] == 0 and shockwave[2][1] == 0 and shockwave[2][0] == 0:
                     self.shockwaves.remove(shockwave)
             else:
-                shockwave[1] += max(0, min(20, 150 * (shockwave[4] * 0.01) / max(0.0001, shockwave[1] * 2))) * self.dt * shockwave[3]
+                shockwave[1] += (
+                    max(0, min(20, 150 * (shockwave[4] * 0.01) / max(0.0001, shockwave[1] * 2))) * self.dt * shockwave[3]
+                )
         for i, bit in sorted(enumerate(self.smoke), reverse=True):
             bit.update(self.dt)
             if bit.timer > SMOKE_DELAY // FADE:
@@ -247,7 +284,8 @@ class App:
                 # handle window resizing on desktop
                 if event.type == pygame.WINDOWRESIZED:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
-
+                    # self.alpha = pygame.Surface(self.screen.get_size())
+                    # self.alpha.fill((0, 0, 0))
                 if event.type == pygame.KEYDOWN:
                     if event.key in {pygame.K_UP, pygame.K_w, pygame.K_SPACE}:
                         self.player.controls["up"] = True

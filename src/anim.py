@@ -1,5 +1,6 @@
 import pygame, math
 
+
 class Anim:
     def __init__(self, animation, speed, looping=True):
         self.animation = animation
@@ -26,4 +27,10 @@ class Anim:
     def draw(self, surf, scroll, pos, angle=0):
         anim = pygame.transform.flip(self.animation[self.step], self.flip, False)
         rot_surf = pygame.transform.rotate(anim, angle)
-        surf.blit(rot_surf, (pos[0] + int(anim.get_width() / 2) - int(rot_surf.get_width() / 2) - scroll[0], pos[1] + int(anim.get_height() / 2) - int(rot_surf.get_height() / 2) - scroll[1]))
+        surf.blit(
+            rot_surf,
+            (
+                pos[0] + int(anim.get_width() / 2) - int(rot_surf.get_width() / 2) - scroll[0],
+                pos[1] + int(anim.get_height() / 2) - int(rot_surf.get_height() / 2) - scroll[1],
+            ),
+        )

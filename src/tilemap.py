@@ -7,6 +7,7 @@ OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1),
 PHYSICS_TILES = {"grass", "underwater_grass", "purple"}
 DANGER_TILES = ["spikes"]
 
+
 class TileMap:
     def __init__(self, app):
         self.app = app
@@ -61,7 +62,7 @@ class TileMap:
                 )
         # print(rects)
         return rects
-    
+
     def danger_rects_around(self, pos):
         rects = []
         for tile in self.tiles_around(pos):

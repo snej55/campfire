@@ -1,4 +1,5 @@
 import pygame, sys, time, math, json
+from src.util import *
 
 # window dimensions
 SCR_WIDTH = 2100
@@ -14,7 +15,7 @@ LEVEL_WIDTH = 20
 LEVEL_HEIGHT = 20
 
 # json map path
-MAP = "data/maps/0.json"
+MAP = "data/maps/2.json"
 
 # tile sets that can be autotiled
 AUTO_TILE_TYPES = {"grass", "underwater_grass", "purple"}
@@ -76,6 +77,7 @@ class Editor:
             "spikes": self.load_sheet(pygame.image.load("data/images/tiles/spikes.png").convert(), [12, 12]),
             "pufferfish": self.load_sheet(pygame.image.load("data/images/pufferfish.png").convert(), [16, 13]),
             "nautilus": self.load_sheet(pygame.image.load("data/images/nautilus.png").convert(), [28, 17]),
+            "flag": [load_image("flag.png")]
         }
 
         # set colorkeys
@@ -108,7 +110,7 @@ class Editor:
     def create_new(self, path):
         f = open(path, "w")
         # write basic json level data
-        json.dump({"level": {"tiles": [], "off_grid": []}}, f, separators=(",", ":"))
+        json.dump({"level": {"tiles": [], "off_grid": [], "water": []}}, f, separators=(",", ":"))
         f.close()
 
     # load json level data from path

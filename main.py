@@ -30,10 +30,13 @@ if WEB_PLATFORM:
 # window dimensions and scaling
 WIDTH, HEIGHT = 768, 768
 SCALE = 4
+NUM_LEVELS = 3
 
+pygame.mixer.music.load("data/audio/menu_loop.ogg")
 
 class App:
     def __init__(self):
+        pygame.mixer.music.play(-1)
         # no need for separate scaling, pygbag scales canvas automatically
         self.display = pygame.display.set_mode((WIDTH, HEIGHT), flags=pygame.RESIZABLE)
         self.screen = pygame.Surface((WIDTH // SCALE, HEIGHT // SCALE))
@@ -67,8 +70,13 @@ class App:
             "fire": load_animation("fire.png", 5, 5, 9),
             "light": load_image("light.png"),
             "logo": load_image("logo.png"),
-            "button": load_image("play.png")
+            "button": load_image("play.png"),
+            "flag": load_image("flag.png"),
+            "win": load_image("you_win.png")
         }
+
+        self.music = ["data/audio/dry_music.ogg", "data/audio/wet_music_loop.ogg", "data/audio/dry_music_2.ogg", "data/audio/wet_music_2_loop.ogg"]
+        self.music_idx = 0
 
         self.kickup_palette = load_palette(self.assets["pin"])
         self.kickup_palette.extend(load_palette(self.assets["shell"]))
@@ -82,6 +90,7 @@ class App:
         self.scroll = [0, 0]
 
         self.tile_map = TileMap(self)
+        self.current_level = 0
         self.tile_map.load("data/maps/0.json")
 
         self.pufferfish = []
@@ -96,6 +105,13 @@ class App:
                 )
                 del self.tile_map.tile_map[loc]
         self.pins = []
+
+        self.flag = pygame.Rect(0, 0, 0, 0)
+        for loc in self.tile_map.tile_map.copy():
+            if self.tile_map.tile_map[loc]["type"] == "flag":
+                self.flag = pygame.Rect(self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                print(self.flag)
+                del self.tile_map.tile_map[loc]
 
         self.nautilus = []
         for loc in self.tile_map.tile_map.copy():
@@ -124,6 +140,78 @@ class App:
         self.button_size = 1
         self.button_size_vel = 1
         self.hover = False
+        self.fade_alpha = 0
+        self.fade_vel = 0
+        self.win = False
+
+        self.fade_surf = None
+        self.gen_fade()
+    
+    def gen_fade(self):
+        self.fade_surf = pygame.Surface(self.screen.get_size())
+        self.fade_surf.fill((0, 0, 0))
+        self.fade_surf.set_alpha(self.fade_alpha)
+    
+    def next_level(self, path):
+        self.current_level += 1
+        if self.current_level == NUM_LEVELS:
+            self.win = True
+            pygame.mixer.music.unload()
+            pygame.mixer.music.load("data/audio/victory_full.ogg")
+            pygame.mixer.music.play(-1)
+            return
+        self.scroll = [0, 0]
+
+        self.music_idx += 1
+        pygame.mixer.music.unload()
+        pygame.mixer.music.load(self.music[self.music_idx % len(self.music)])
+        pygame.mixer.music.play(-1)
+
+        self.tile_map = TileMap(self)
+        self.tile_map.load(path)
+
+        self.pufferfish = []
+        for loc in self.tile_map.tile_map.copy():
+            if self.tile_map.tile_map[loc]["type"] == "pufferfish":
+                self.pufferfish.append(
+                    Pufferfish(
+                        self,
+                        [self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE],
+                        self.assets["pufferfish"],
+                    )
+                )
+                del self.tile_map.tile_map[loc]
+        self.pins = []
+
+        self.flag = pygame.Rect(0, 0, 0, 0)
+        for loc in self.tile_map.tile_map.copy():
+            if self.tile_map.tile_map[loc]["type"] == "flag":
+                self.flag = pygame.Rect(self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                print(self.flag)
+                del self.tile_map.tile_map[loc]
+
+        self.nautilus = []
+        for loc in self.tile_map.tile_map.copy():
+            if self.tile_map.tile_map[loc]["type"] == "nautilus":
+                self.nautilus.append(
+                    Nautilus(
+                        self,
+                        [self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE],
+                        self.assets["nautilus"],
+                    )
+                )
+                del self.tile_map.tile_map[loc]
+        self.shells = []
+        self.light = self.assets["light"]
+
+        self.kickup = []
+        self.sparks = []
+        self.smoke = []
+        self.fire = []
+        self.shockwaves = []
+
+        self.player = Player(self, [6, 7], [20, 15])
+        self.screen_shake = 0
 
     def update_fire(self, render_scroll):
         # [pos, frame]
@@ -279,6 +367,21 @@ class App:
                 water.update(self.screen, self.player, render_scroll, self.dt)
                 if water.get_rect().colliderect(self.player.get_rect()):
                     self.player.water = True
+        
+        self.screen.blit(self.assets["flag"], (self.flag.x - render_scroll[0], self.flag.y - render_scroll[1]))
+
+        if self.player.get_rect().colliderect(self.flag):
+            self.fade_vel = 1
+        if self.fade_vel > 0:
+            self.fade_alpha = min(self.fade_alpha + self.fade_vel * self.dt, 255)
+            if self.fade_alpha == 255:
+                self.next_level(f"data/maps/{self.current_level + 1}.json")
+                self.fade_vel = -1
+        elif self.fade_vel < 0:
+            self.fade_alpha = max(self.fade_alpha + self.fade_vel * self.dt, 0)
+        
+        self.fade_surf.set_alpha(self.fade_alpha)
+        self.screen.blit(self.fade_surf)
 
     def menu(self):
         self.screen.blit(pygame.transform.scale(self.assets["background"], self.screen.get_size()), (0, 0))
@@ -300,6 +403,10 @@ class App:
         self.button_size_vel += (self.button_size_vel * 0.2 - self.button_size_vel) * self.dt
         self.screen.blit(pygame.transform.scale_by(self.assets["button"], self.button_size), (self.screen.get_width() * 0.5 - self.assets["button"].get_width() * 0.5 * self.button_size, self.screen.get_height() * 0.85 - self.assets["button"].get_height() * 0.5 * self.button_size))
 
+    def win_screen(self):
+        self.screen.blit(pygame.transform.scale(self.assets["background"], self.screen.get_size()), (0, 0))
+        self.screen.blit(pygame.transform.scale(self.assets["win"], self.screen.get_size()), (0, 0))
+
     # asynchronous main loop to run in browser
     async def run(self):
         while True:
@@ -311,12 +418,16 @@ class App:
                 # handle window resizing on desktop
                 if event.type == pygame.WINDOWRESIZED:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
+                    self.gen_fade()
                     # self.alpha = pygame.Surface(self.screen.get_size())
                     # self.alpha.fill((0, 0, 0))
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if self.hover:
                             self.menu_screen = False
+                            pygame.mixer.music.unload()
+                            pygame.mixer.music.load(self.music[self.music_idx])
+                            pygame.mixer.music.play(-1)
                 if event.type == pygame.KEYDOWN:
                     if event.key in {pygame.K_UP, pygame.K_w, pygame.K_SPACE}:
                         self.player.controls["up"] = True
@@ -342,6 +453,8 @@ class App:
             # update game
             if self.menu_screen:
                 self.menu()
+            elif self.win:
+                self.win_screen()
             else:
                 self.update()
 

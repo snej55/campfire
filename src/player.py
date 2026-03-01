@@ -1,5 +1,6 @@
 import pygame, math, random
 
+
 class Anim:
     def __init__(self, animation, speed, looping=True):
         self.animation = animation
@@ -9,12 +10,12 @@ class Anim:
         self.frame = 0
         self.step = 0
         self.flip = False
-    
+
     def reset(self):
         self.finished = False
         self.frame = 0
         self.step = 0
-    
+
     def update(self, dt):
         self.frame += self.speed * dt
         self.step = math.floor(self.frame) % len(self.animation)
@@ -22,9 +23,10 @@ class Anim:
             if self.frame >= len(self.animation):
                 self.finished = True
                 self.step = len(self.animation) - 1
-    
+
     def draw(self, surf, scroll, pos):
         surf.blit(pygame.transform.flip(self.animation[self.step], self.flip, False), (pos[0] - scroll[0], pos[1] - scroll[1]))
+
 
 class Player:
     def __init__(self, app, dimensions, start_pos):
@@ -42,7 +44,13 @@ class Player:
         self.movement = pygame.Vector2(0, 0)
 
         self.run = Anim(self.app.assets["player/run"], 0.2)
-        self.idles = [Anim(self.app.assets["player/idle_1"], 0.15, False), Anim(self.app.assets["player/idle_1"], 0.15, False), Anim(self.app.assets["player/idle_2"], 0.15, False), Anim(self.app.assets["player/idle_3"], 0.15, False), Anim(self.app.assets["player/idle_4"], 0.15, False)]
+        self.idles = [
+            Anim(self.app.assets["player/idle_1"], 0.15, False),
+            Anim(self.app.assets["player/idle_1"], 0.15, False),
+            Anim(self.app.assets["player/idle_2"], 0.15, False),
+            Anim(self.app.assets["player/idle_3"], 0.15, False),
+            Anim(self.app.assets["player/idle_4"], 0.15, False),
+        ]
         self.idle_index = 0
         self.jump = Anim(self.app.assets["player/jump"], 0.2, False)
         self.land = Anim(self.app.assets["player/land"], 0.2, False)
@@ -98,9 +106,9 @@ class Player:
                     r.top = rect.bottom
                 self.movement.y = 0
                 self.pos.y = r.y
-        
+
         self.handle_animation(dt)
-    
+
     def handle_animation(self, dt):
         if self.falling > 5:
             self.grounded = 0

@@ -43,14 +43,14 @@ class App:
         self.last_time = time.time() - 1 / 60
 
         self.assets = {
-            "tiles/grass": load_tile_imgs("tiles/underwater_grass.png", TILE_SIZE),
+            "tiles/grass": load_tile_imgs("tiles/final_grass.png", TILE_SIZE),
             "player/run": load_animation("player/run.png", 8, 8, 10),
             "player/idle_1": load_animation("player/idle_1.png", 8, 8, 5),
             "player/idle_2": load_animation("player/idle_2.png", 8, 8, 8),
             "player/idle_3": load_animation("player/idle_3.png", 8, 8, 5),
             "player/idle_4": load_animation("player/idle_4.png", 8, 8, 8),
             "player/jump": load_animation("player/jump.png", 8, 8, 8),
-            "player/land": load_animation("player/jump.png", 8, 8, 3)
+            "player/land": load_animation("player/jump.png", 8, 8, 3),
         }
 
         self.scroll = [0, 0]
@@ -82,8 +82,6 @@ class App:
         if self.active:
             for water in self.tile_map.water:
                 water.update(self.screen, self.player, render_scroll, self.dt)
-
-        self.screen.blit(self.assets["player/run"][int(time.time() * 3) % 10], (0, 0))
 
     # asynchronous main loop to run in browser
     async def run(self):

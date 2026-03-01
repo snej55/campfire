@@ -22,6 +22,7 @@ class WaterSpring:
 
 WATER_LEVEL = 5
 
+
 class Water:
     def __init__(self, x, y, dimensions, spacing):
         self.x = x

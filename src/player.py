@@ -43,7 +43,7 @@ class Player:
 
         self.movement = pygame.Vector2(0, 0)
 
-        self.run = Anim(self.app.assets["player/run"], 0.2)
+        self.run = Anim(self.app.assets["player/run"], 0.3)
         self.idles = [
             Anim(self.app.assets["player/idle_1"], 0.15, False),
             Anim(self.app.assets["player/idle_1"], 0.15, False),
@@ -65,7 +65,7 @@ class Player:
         self.jumping += dt
         self.grounded += dt
 
-        speed = 1.6
+        speed = 1.3
         if self.controls["right"]:
             self.movement.x += speed * dt
             self.flip = False
@@ -74,11 +74,11 @@ class Player:
             self.flip = True
         self.movement.x += (self.movement.x * 0.6 - self.movement.x) * dt
 
-        self.movement.y += 0.3 * dt
+        self.movement.y += 0.23 * dt
 
         if self.falling < 5:
             if self.jumping < 15:
-                self.movement.y = -4
+                self.movement.y = -3.6
                 self.falling = 6
                 self.jumping = 30
 

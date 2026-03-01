@@ -1,16 +1,17 @@
 import pygame
 from .util import read_json
+from .water import Water
 
 TILE_SIZE = 12
 OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (0, 0)}
 PHYSICS_TILES = {"grass"}
-
 
 class TileMap:
     def __init__(self, app):
         self.app = app
         self.tile_map = {}
         self.off_grid = []
+        self.water = []
         self.tile_size = TILE_SIZE
 
     def load(self, path):
@@ -31,6 +32,9 @@ class TileMap:
         self.off_grid.extend(data["level"]["off_grid"])
         for tile in self.off_grid:
             tile["type"] = tile["type"]
+        
+        for water in data["level"]["water"]:
+            self.water.append(Water(water[0], water[1], [water[2], water[3]], 3))
 
     def tiles_around(self, pos):
         tiles = []

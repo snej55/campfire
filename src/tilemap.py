@@ -4,7 +4,7 @@ from .water import Water
 
 TILE_SIZE = 12
 OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (0, 0)}
-PHYSICS_TILES = {"grass"}
+PHYSICS_TILES = {"grass", "underwater_grass", "purple"}
 
 
 class TileMap:

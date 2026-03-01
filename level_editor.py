@@ -17,7 +17,7 @@ LEVEL_HEIGHT = 20
 MAP = "data/maps/0.json"
 
 # tile sets that can be autotiled
-AUTO_TILE_TYPES = {"grass"}
+AUTO_TILE_TYPES = {"grass", "underwater_grass", "purple"}
 AUTO_TILE_MAP = {
     "0011": 1,
     "1011": 2,
@@ -69,7 +69,10 @@ class Editor:
 
         # assets
         self.assets = {
-            "grass": self.load_tileset(pygame.image.load("data/images/tiles/stripy_grass.png").convert()),
+            "grass": self.load_tileset(pygame.image.load("data/images/tiles/final_grass.png").convert()),
+            "underwater_grass": self.load_tileset(pygame.image.load("data/images/tiles/underwater_grass.png").convert()),
+            "purple": self.load_tileset(pygame.image.load("data/images/tiles/purple.png").convert()),
+            "large_decor": self.load_sheet(pygame.image.load("data/images/tiles/large_decor.png").convert(), [48, 48])
         }
 
         # set colorkeys

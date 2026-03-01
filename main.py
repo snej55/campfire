@@ -29,10 +29,11 @@ if WEB_PLATFORM:
 
 # window dimensions and scaling
 WIDTH, HEIGHT = 768, 768
-SCALE = 4
-NUM_LEVELS = 3
+SCALE = 2
+NUM_LEVELS = 6
 
 pygame.mixer.music.load("data/audio/menu_loop.ogg")
+
 
 class App:
     def __init__(self):
@@ -77,10 +78,16 @@ class App:
             "fall": load_sound("jump.ogg"),
             "portal": load_sound("portal.ogg"),
             "tiles/seawead": load_animation("tiles/seaweed.png", 32, 32, 4),
-            "tiles/grass_decor": load_animation("blades_of_grass.png", 12, 5, 4)
+            "tiles/grass_decor": load_animation("blades_of_grass.png", 12, 5, 4),
         }
 
-        self.music = ["data/audio/dry_music.ogg", "data/audio/dry_music.ogg", "data/audio/wet_music_loop.ogg", "data/audio/dry_music_2.ogg", "data/audio/wet_music_2_loop.ogg"]
+        self.music = [
+            "data/audio/dry_music.ogg",
+            "data/audio/dry_music.ogg",
+            "data/audio/wet_music_loop.ogg",
+            "data/audio/dry_music_2.ogg",
+            "data/audio/wet_music_2_loop.ogg",
+        ]
         self.music_idx = 0
 
         self.kickup_palette = load_palette(self.assets["pin"])
@@ -114,7 +121,12 @@ class App:
         self.flag = pygame.Rect(0, 0, 0, 0)
         for loc in self.tile_map.tile_map.copy():
             if self.tile_map.tile_map[loc]["type"] == "flag":
-                self.flag = pygame.Rect(self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                self.flag = pygame.Rect(
+                    self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE,
+                    self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE,
+                    TILE_SIZE,
+                    TILE_SIZE,
+                )
                 print(self.flag)
                 del self.tile_map.tile_map[loc]
 
@@ -151,12 +163,12 @@ class App:
 
         self.fade_surf = None
         self.gen_fade()
-    
+
     def gen_fade(self):
         self.fade_surf = pygame.Surface(self.screen.get_size())
         self.fade_surf.fill((0, 0, 0))
         self.fade_surf.set_alpha(self.fade_alpha)
-    
+
     def next_level(self, path):
         self.current_level += 1
         if self.current_level == NUM_LEVELS:
@@ -191,7 +203,12 @@ class App:
         self.flag = pygame.Rect(0, 0, 0, 0)
         for loc in self.tile_map.tile_map.copy():
             if self.tile_map.tile_map[loc]["type"] == "flag":
-                self.flag = pygame.Rect(self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                self.flag = pygame.Rect(
+                    self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE,
+                    self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE,
+                    TILE_SIZE,
+                    TILE_SIZE,
+                )
                 print(self.flag)
                 del self.tile_map.tile_map[loc]
 
@@ -372,11 +389,11 @@ class App:
                 water.update(self.screen, self.player, render_scroll, self.dt)
                 if water.get_rect().colliderect(self.player.get_rect()):
                     self.player.water = True
-        
+
         self.screen.blit(self.assets["flag"], (self.flag.x - render_scroll[0], self.flag.y - render_scroll[1]))
 
         if self.player.get_rect().colliderect(self.flag):
-            if (self.fade_vel != 1):
+            if self.fade_vel != 1:
                 self.assets["portal"].play()
             self.fade_vel = 1
         if self.fade_vel > 0:
@@ -386,7 +403,7 @@ class App:
                 self.fade_vel = -1
         elif self.fade_vel < 0:
             self.fade_alpha = max(self.fade_alpha + self.fade_vel * self.dt, 0)
-        
+
         self.fade_surf.set_alpha(self.fade_alpha)
         self.screen.blit(self.fade_surf)
 
@@ -400,7 +417,12 @@ class App:
         mouse_pos[1] /= SCALE
 
         highlighted = False
-        rect = pygame.Rect(self.screen.get_width() * 0.5 - self.assets["button"].get_width() * 0.5 * 1.1, self.screen.get_height() * 0.85 - self.assets["button"].get_height() * 0.5 * 1.1, self.assets["button"].get_width() * 1.1, self.assets["button"].get_height() * 1.1)
+        rect = pygame.Rect(
+            self.screen.get_width() * 0.5 - self.assets["button"].get_width() * 0.5 * 1.1,
+            self.screen.get_height() * 0.85 - self.assets["button"].get_height() * 0.5 * 1.1,
+            self.assets["button"].get_width() * 1.1,
+            self.assets["button"].get_height() * 1.1,
+        )
         if rect.collidepoint(mouse_pos):
             highlighted = True
         self.hover = highlighted
@@ -408,7 +430,13 @@ class App:
         self.button_size_vel += (size - self.button_size) * 0.2 * self.dt
         self.button_size += self.button_size_vel * self.dt
         self.button_size_vel += (self.button_size_vel * 0.2 - self.button_size_vel) * self.dt
-        self.screen.blit(pygame.transform.scale_by(self.assets["button"], self.button_size), (self.screen.get_width() * 0.5 - self.assets["button"].get_width() * 0.5 * self.button_size, self.screen.get_height() * 0.85 - self.assets["button"].get_height() * 0.5 * self.button_size))
+        self.screen.blit(
+            pygame.transform.scale_by(self.assets["button"], self.button_size),
+            (
+                self.screen.get_width() * 0.5 - self.assets["button"].get_width() * 0.5 * self.button_size,
+                self.screen.get_height() * 0.85 - self.assets["button"].get_height() * 0.5 * self.button_size,
+            ),
+        )
 
     def win_screen(self):
         self.screen.blit(pygame.transform.scale(self.assets["background"], self.screen.get_size()), (0, 0))

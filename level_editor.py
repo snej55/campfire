@@ -15,7 +15,7 @@ LEVEL_WIDTH = 20
 LEVEL_HEIGHT = 20
 
 # json map path
-MAP = "data/maps/2.json"
+MAP = "data/maps/5.json"
 
 # tile sets that can be autotiled
 AUTO_TILE_TYPES = {"grass", "underwater_grass", "purple"}
@@ -74,6 +74,8 @@ class Editor:
             "underwater_grass": self.load_tileset(pygame.image.load("data/images/tiles/underwater_grass.png").convert()),
             "purple": self.load_tileset(pygame.image.load("data/images/tiles/purple.png").convert()),
             "large_decor": self.load_sheet(pygame.image.load("data/images/tiles/large_decor.png").convert(), [48, 48]),
+            "seawead": self.load_sheet(pygame.image.load("data/images/tiles/seaweed.png").convert(), [32, 32]),
+            "grass_decor": self.load_sheet(pygame.image.load("data/images/blades_of_grass.png").convert(), [12, 9]),
             "spikes": self.load_sheet(pygame.image.load("data/images/tiles/spikes.png").convert(), [12, 12]),
             "pufferfish": self.load_sheet(pygame.image.load("data/images/pufferfish.png").convert(), [16, 13]),
             "nautilus": self.load_sheet(pygame.image.load("data/images/nautilus.png").convert(), [28, 17]),

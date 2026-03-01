@@ -74,10 +74,13 @@ class App:
             "flag": load_image("flag.png"),
             "win": load_image("you_win.png"),
             "splash": load_sound("splash.ogg"),
-            "fall": load_sound("jump.ogg")
+            "fall": load_sound("jump.ogg"),
+            "portal": load_sound("portal.ogg"),
+            "tiles/seawead": load_animation("tiles/seaweed.png", 32, 32, 4),
+            "tiles/grass_decor": load_animation("blades_of_grass.png", 12, 5, 4)
         }
 
-        self.music = ["data/audio/dry_music.ogg", "data/audio/wet_music_loop.ogg", "data/audio/dry_music_2.ogg", "data/audio/wet_music_2_loop.ogg"]
+        self.music = ["data/audio/dry_music.ogg", "data/audio/dry_music.ogg", "data/audio/wet_music_loop.ogg", "data/audio/dry_music_2.ogg", "data/audio/wet_music_2_loop.ogg"]
         self.music_idx = 0
 
         self.kickup_palette = load_palette(self.assets["pin"])
@@ -373,6 +376,8 @@ class App:
         self.screen.blit(self.assets["flag"], (self.flag.x - render_scroll[0], self.flag.y - render_scroll[1]))
 
         if self.player.get_rect().colliderect(self.flag):
+            if (self.fade_vel != 1):
+                self.assets["portal"].play()
             self.fade_vel = 1
         if self.fade_vel > 0:
             self.fade_alpha = min(self.fade_alpha + self.fade_vel * self.dt, 255)

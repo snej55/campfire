@@ -18,12 +18,14 @@ class WaterSpring:
     def draw(self, surf, scroll):
         surf.set_at((int(self.x - scroll[0]), int(self.y - scroll[1])), (255, 255, 255))
 
+WATER_LEVEL = 5
 
 class Water:
     def __init__(self, x, y, dimensions, spacing):
         self.x = x
-        self.y = y
+        self.y = y + WATER_LEVEL
         self.dimensions, self.spacing = list(dimensions), spacing
+        self.dimensions[1] -= WATER_LEVEL
         self.springs = [WaterSpring(self.x + x * spacing, self.y, self.y, 0.2) for x in range(math.ceil(dimensions[0] / spacing) + 1)]
     
     def get_rect(self):
@@ -32,7 +34,7 @@ class Water:
     def update(self, surf, player, scroll, dt):
         points = []
         for i, spring in enumerate(self.springs):
-            if player.rect().collidepoint((spring.x, spring.y)):    
+            if player.get_rect().collidepoint((spring.x, spring.y)):    
                 spring.vel += max(-3, min(3, player.movement[1] + -abs(player.movement[0]))) * dt * (abs(spring.target_y - spring.y) < 1.5)
             spring.update([self.springs[max(0, i - 1)], self.springs[min(i + 1, len(self.springs) - 1)]], dt)
             points.append((spring.x - scroll[0] - (i == len(self.springs) - 1), spring.y - scroll[1]))
@@ -46,5 +48,5 @@ class Water:
         water_surf.set_colorkey((0, 0, 0))
         water_surf.set_alpha(150)
         surf.blit(water_surf, (0, 0))
-        if player.rect().colliderect(self.get_rect()):
+        if player.get_rect().colliderect(self.get_rect()):
             player.falling = 0

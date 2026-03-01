@@ -66,6 +66,9 @@ class App:
         self.player.draw(self.screen, render_scroll)
         self.tile_map.draw(self.screen, render_scroll)
 
+        for water in self.tile_map.water:
+            water.update(self.screen, self.player, render_scroll, self.dt)
+
     # asynchronous main loop to run in browser
     async def run(self):
         while True:

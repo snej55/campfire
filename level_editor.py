@@ -391,7 +391,7 @@ class Editor:
                                 math.floor(mouse_pos[1] / SCALE + self.scroll.y),
                             ]
                             for i, water in sorted(enumerate(self.water), reverse=True):
-                                if water.collidepoint(mouse_pos):
+                                if pygame.Rect(water).collidepoint(mouse_pos):
                                     self.water.pop(i)
                                     
                     elif self.controls["l_shift"]:

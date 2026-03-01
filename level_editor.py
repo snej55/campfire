@@ -74,7 +74,8 @@ class Editor:
             "purple": self.load_tileset(pygame.image.load("data/images/tiles/purple.png").convert()),
             "large_decor": self.load_sheet(pygame.image.load("data/images/tiles/large_decor.png").convert(), [48, 48]),
             "spikes": self.load_sheet(pygame.image.load("data/images/tiles/spikes.png").convert(), [12, 12]),
-            "pufferfish": self.load_sheet(pygame.image.load("data/images/pufferfish.png").convert(), [16, 13])
+            "pufferfish": self.load_sheet(pygame.image.load("data/images/pufferfish.png").convert(), [16, 13]),
+            "nautilus": self.load_sheet(pygame.image.load("data/images/nautilus.png").convert(), [28, 17])
         }
 
         # set colorkeys

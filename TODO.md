@@ -11,6 +11,7 @@
 - [ ] Bubble particles
 - [ ] Fireflies
 - [ ] Explosions
+- [ ] Fix tile map borders
 
 2. Puffer fish
 3. Explosions

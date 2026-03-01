@@ -9,6 +9,7 @@ import asyncio, pygame, time, sys, platform
 
 from src.util import *
 from src.tilemap import *
+from src.player import *
 
 pygame.init()
 pygame.mixer.init()
@@ -48,17 +49,23 @@ class App:
         self.tile_map = TileMap(self)
         self.tile_map.load("data/maps/0.json")
 
+        self.player = Player(self, [8, 12], [20, 15])
+
     # put all the game stuff here
     def update(self):
         # update delta time
         self.dt = (time.time() - self.last_time) * 60
         self.last_time = time.time()
 
-        self.render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+        self.player.update(self.dt, self.tile_map)
+
 
         # do the rendering
+        render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
         self.screen.fill((0, 0, 0))
-        self.tile_map.draw(self.screen, self.render_scroll)
+
+        self.player.draw(self.screen, render_scroll)
+        self.tile_map.draw(self.screen, render_scroll)
 
     # asynchronous main loop to run in browser
     async def run(self):
@@ -72,6 +79,25 @@ class App:
                 if event.type == pygame.WINDOWRESIZED:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
 
+                if event.type == pygame.KEYDOWN:
+                    if event.key in {pygame.K_UP, pygame.K_w, pygame.K_SPACE}:
+                        self.player.controls["up"] = True
+                        self.player.jumping = 0
+                    if event.key in {pygame.K_DOWN, pygame.K_s}:
+                        self.player.controls["down"] = True
+                    if event.key in {pygame.K_RIGHT, pygame.K_d}:
+                        self.player.controls["right"] = True
+                    if event.key in {pygame.K_LEFT, pygame.K_a}:
+                        self.player.controls["left"] = True
+                if event.type == pygame.KEYUP:
+                    if event.key in {pygame.K_UP, pygame.K_w, pygame.K_SPACE}:
+                        self.player.controls["up"] = False
+                    if event.key in {pygame.K_DOWN, pygame.K_s}:
+                        self.player.controls["down"] = False
+                    if event.key in {pygame.K_RIGHT, pygame.K_d}:
+                        self.player.controls["right"] = False
+                    if event.key in {pygame.K_LEFT, pygame.K_a}:
+                        self.player.controls["left"] = False
             # update game
             self.update()
 

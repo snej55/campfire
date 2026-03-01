@@ -1,8 +1,2 @@
-*.wav
-*.mp3
-*.pyc
-*.egg-info
-*-pygbag.???
-/build
-/dist
-/.venv
+/build/
+src/__pycache__

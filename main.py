@@ -5,7 +5,10 @@
 # Running (from root directory):
 # pygbag .
 
-import asyncio, pygame, time, math, sys, platform
+import asyncio, pygame, time, sys, platform
+
+from src.util import *
+from src.tilemap import *
 
 pygame.init()
 pygame.mixer.init()
@@ -24,6 +27,7 @@ if WEB_PLATFORM:
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
 
+
 class App:
     def __init__(self):
         # no need for separate scaling, pygbag scales canvas automatically
@@ -37,7 +41,12 @@ class App:
         self.dt = 1
         self.last_time = time.time() - 1 / 60
 
-        self.assets = {}
+        self.assets = {"tiles/grass": load_tile_imgs("tiles/grass.png", TILE_SIZE)}
+
+        self.scroll = [0, 0]
+
+        self.tile_map = TileMap(self)
+        self.tile_map.load("data/maps/0.json")
 
     # put all the game stuff here
     def update(self):
@@ -45,8 +54,11 @@ class App:
         self.dt = (time.time() - self.last_time) * 60
         self.last_time = time.time()
 
+        self.render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+
         # do the rendering
         self.screen.fill((0, 0, 0))
+        self.tile_map.draw(self.screen, self.render_scroll)
 
     # asynchronous main loop to run in browser
     async def run(self):

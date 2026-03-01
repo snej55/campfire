@@ -142,10 +142,13 @@ class Player:
                         self.pos.y = r.y
             for rect in tile_map.danger_rects_around(self.get_rect().center):
                 if rect.colliderect(self.get_rect()):
-                    self.ad = 0
-                    self.pos = pygame.Vector2(self.start_pos)
-                    self.movement = pygame.Vector2(0, 0)
-                    self.app.screen_shake = max(self.app.screen_shake, 16)
+                    self.die()
+    
+    def die(self):
+        self.ad = 0
+        self.pos = pygame.Vector2(self.start_pos)
+        self.movement = pygame.Vector2(0, 0)
+        self.app.screen_shake = max(self.app.screen_shake, 16)
 
     def handle_animation(self, dt):
         if self.falling > 5:

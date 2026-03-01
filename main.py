@@ -42,7 +42,7 @@ class App:
         self.dt = 1
         self.last_time = time.time() - 1 / 60
 
-        self.assets = {"tiles/grass": load_tile_imgs("tiles/grass.png", TILE_SIZE)}
+        self.assets = {"tiles/grass": load_tile_imgs("tiles/solid_grass.png", TILE_SIZE)}
 
         self.scroll = [0, 0]
 
@@ -58,7 +58,6 @@ class App:
         self.last_time = time.time()
 
         self.player.update(self.dt, self.tile_map)
-
 
         # do the rendering
         render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
@@ -83,20 +82,20 @@ class App:
                     if event.key in {pygame.K_UP, pygame.K_w, pygame.K_SPACE}:
                         self.player.controls["up"] = True
                         self.player.jumping = 0
-                    if event.key in {pygame.K_DOWN, pygame.K_s}:
+                    elif event.key in {pygame.K_DOWN, pygame.K_s}:
                         self.player.controls["down"] = True
-                    if event.key in {pygame.K_RIGHT, pygame.K_d}:
+                    elif event.key in {pygame.K_RIGHT, pygame.K_d}:
                         self.player.controls["right"] = True
-                    if event.key in {pygame.K_LEFT, pygame.K_a}:
+                    elif event.key in {pygame.K_LEFT, pygame.K_a}:
                         self.player.controls["left"] = True
                 if event.type == pygame.KEYUP:
                     if event.key in {pygame.K_UP, pygame.K_w, pygame.K_SPACE}:
                         self.player.controls["up"] = False
-                    if event.key in {pygame.K_DOWN, pygame.K_s}:
+                    elif event.key in {pygame.K_DOWN, pygame.K_s}:
                         self.player.controls["down"] = False
-                    if event.key in {pygame.K_RIGHT, pygame.K_d}:
+                    elif event.key in {pygame.K_RIGHT, pygame.K_d}:
                         self.player.controls["right"] = False
-                    if event.key in {pygame.K_LEFT, pygame.K_a}:
+                    elif event.key in {pygame.K_LEFT, pygame.K_a}:
                         self.player.controls["left"] = False
             # update game
             self.update()

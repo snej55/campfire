@@ -1,5 +1,6 @@
 import pygame
 
+
 class Player:
     def __init__(self, app, dimensions, start_pos):
         self.app = app
@@ -13,7 +14,7 @@ class Player:
         self.controls = {"up": False, "down": False, "right": False, "left": False}
 
         self.movement = pygame.Vector2(0, 0)
-    
+
     def get_rect(self):
         return pygame.Rect(self.pos.x, self.pos.y, self.dimensions.x, self.dimensions.y)
 
@@ -27,7 +28,7 @@ class Player:
         if self.controls["left"]:
             self.movement.x -= speed * dt
         self.movement.x += (self.movement.x * 0.6 - self.movement.x) * dt
-        
+
         self.movement.y += 0.3 * dt
 
         if self.falling < 5:
@@ -48,7 +49,7 @@ class Player:
                     r.left = rect.right
                 self.pos.x = r.x
                 self.movement.x = 0
-        
+
         self.pos.y += fm.y
         r = self.get_rect()
         for rect in tile_map.physics_rects_around(r.center):

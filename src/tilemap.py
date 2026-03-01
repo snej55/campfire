@@ -5,7 +5,6 @@ TILE_SIZE = 12
 OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (0, 0)}
 PHYSICS_TILES = {"grass"}
 
-
 class TileMap:
     def __init__(self, app):
         self.app = app

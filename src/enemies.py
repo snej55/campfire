@@ -81,6 +81,9 @@ class Shell:
         self.angle += dt * 10
         self.timer += dt
         if self.timer > self.delay:
+            movement = [math.cos(self.angle) * self.speed, math.sin(self.angle) * self.speed]
+            movement[1] = min(8, movement[1] + 0.3 * dt)
+            movement[0] += (movement[0] * 0.95 - movement[0]) * dt
             self.pos.x += math.cos(self.direction) * self.speed * dt
             if tile_map.solid_check(self.pos):
                 self.kill = True
@@ -111,7 +114,7 @@ class Nautilus:
     def shoot(self, amount=6):
         for a in range(amount):
             angle = math.radians(360 / amount * a) + random.random() * math.pi
-            self.app.shells.append(Shell([self.get_rect().centerx + math.cos(angle) * 8, self.get_rect().centery + math.sin(angle) * 8], self.app.assets["shell"], angle, 1, a * 60 / amount))
+            self.app.shells.append(Shell([self.get_rect().centerx + math.cos(angle) * 8, self.get_rect().centery + math.sin(angle) * 8], self.app.assets["shell"], angle, 1.5, a * 60 / amount))
     
     def update(self, dt, player):
         self.anim.update(dt)

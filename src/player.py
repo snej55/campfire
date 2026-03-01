@@ -1,6 +1,8 @@
-import pygame, random
+import pygame, random, math
 
 from .anim import Anim
+from .sparks import *
+from .smoke import *
 
 class Player:
     def __init__(self, app, dimensions, start_pos):
@@ -146,9 +148,22 @@ class Player:
     
     def die(self):
         self.ad = 0
-        self.pos = pygame.Vector2(self.start_pos)
         self.movement = pygame.Vector2(0, 0)
         self.app.screen_shake = max(self.app.screen_shake, 16)
+        for _ in range(random.randint(40, 60)):
+            angle = random.random() * math.pi * 2
+            speed = random.random() * 4 + 3
+            self.app.kickup.append([list(self.get_rect().center), [math.cos(angle) * speed, math.sin(angle) * speed * 1.5], random.random() * 50 + 50, random.choice(self.app.player_palette)])
+        for _ in range(random.randint(20, 30)):
+            angle = random.random() * math.pi * 2
+            speed = random.random() * 2 + 2
+            self.app.sparks.append(Spark(self.get_rect().center, angle, speed, [255, 255, 255]))
+        for _ in range(10, 30):
+            self.app.smoke.append(Smoke(self.pos.x + self.dimensions.x * random.random(), self.pos.y + self.dimensions.y * random.random(), random.random() * 4 - 2, random.random() * 4 - 2, [random.random() * 20, random.random() * 50, random.random() * 70]))
+        for _ in range(30, 40):
+            self.app.fire.append([[self.pos.x + self.dimensions.x * random.random(), self.pos.y + self.dimensions.y * random.random()], random.randint(0, 2)])
+        self.app.shockwaves.append([list(self.get_rect().center), 0.01, (230, 215, 204), 1.2, 25])
+        self.pos = pygame.Vector2(self.start_pos)
 
     def handle_animation(self, dt):
         if self.falling > 5:

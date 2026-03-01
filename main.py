@@ -11,6 +11,8 @@ from src.util import *
 from src.tilemap import *
 from src.player import *
 from src.enemies import *
+from src.smoke import *
+from src.sparks import *
 
 pygame.init()
 pygame.mixer.init()
@@ -61,8 +63,13 @@ class App:
             "pufferfish": load_animation("pufferfish.png", 16, 13, 3),
             "nautilus": load_animation("nautilus.png", 28, 17, 6),
             "pin": load_image("pin.png"),
-            "shell": load_image("shell.png")
+            "shell": load_image("shell.png"),
+            "fire": load_animation("fire.png", 5, 5, 9)
         }
+
+        self.kickup_palette = load_palette(self.assets["pin"])
+        self.kickup_palette.extend(load_palette(self.assets["shell"]))
+        self.player_palette = load_palette(self.assets["player/run"][0])
 
         surf = pygame.Surface(self.assets["background"].get_size())
         surf.fill((0, 0, 0))
@@ -88,8 +95,55 @@ class App:
                 del self.tile_map.tile_map[loc]
         self.shells = []
 
+        self.kickup = []
+        self.sparks = []
+        self.smoke = []
+        self.fire = []
+        self.shockwaves = []
+
         self.player = Player(self, [6, 7], [20, 15])
         self.screen_shake = 0
+    
+    def update_fire(self, render_scroll):
+        # [pos, frame]
+        for i, f in sorted(enumerate(self.fire), reverse=True):
+            f[0][1] -= 2 * self.dt;
+            f[1] += 0.5 * self.dt
+            if f[1] >= len(self.assets['fire']):
+                self.fire.pop(i)
+            else:
+                self.screen.blit(self.assets['fire'][math.floor(f[1])], (f[0][0] - render_scroll[0] - 2.5, f[0][1] - render_scroll[1] - 2.5))
+
+    def update_kickup(self, render_scroll):
+        # particle: [pos, vel, size, color]
+        for i, p in sorted(enumerate(self.kickup), reverse=True):
+            p[0][0] += p[1][0] * self.dt
+            if self.tile_map.solid_check(p[0]):
+                p[0][0] -= p[1][0] * self.dt
+                p[1][0] *= -0.4
+                p[1][1] *= 0.999
+
+            p[1][1] += 0.1 * self.dt
+            p[0][1] += p[1][1] * self.dt
+            if self.tile_map.solid_check(p[0]):
+                p[0][1] -= p[1][1] * self.dt
+                p[1][1] *= -0.4
+                p[1][0] *= 0.999
+
+            p[2] -= 0.1 * self.dt
+            if p[2] <= 0:
+                self.kickup.pop(i)
+            else:
+                color = pygame.Color(p[3][0], p[3][1], p[3][2], int(p[2] / 100 * 255))
+                self.screen.set_at((int(p[0][0] - render_scroll[0]), int(p[0][1] - render_scroll[1])), color)
+
+    def update_sparks(self, render_scroll):
+        for i, spark in sorted(enumerate(self.sparks), reverse=True):
+            spark.update(self.dt)
+            if spark.speed >= 0:
+                spark.draw(self.screen, render_scroll)
+            else:
+                self.sparks.pop(i)
 
     # put all the game stuff here
     def update(self):
@@ -120,6 +174,14 @@ class App:
                 self.player.die()
                 pin.kill = True
             if pin.kill:
+                for _ in range(random.randint(5, 10)):
+                    speed = random.random() 
+                    angle = math.pi * 2 * random.random()
+                    self.kickup.append([[pin.pos[0], pin.pos[1]], [math.cos(angle) * speed, math.sin(angle) * speed], random.random() + 9, [255, 255, 255, 100]])
+                for _ in range(random.randint(5, 10)):
+                    speed = random.random() + 1
+                    angle = pin.direction + math.pi + random.random() - 0.5
+                    self.sparks.append(Spark(pin.pos.copy(), angle, speed, [255, 255, 255]))
                 self.pins.pop(i)
             else:
                 pin.draw(self.screen, render_scroll)
@@ -137,10 +199,35 @@ class App:
         if self.player.ad > self.player.death_time:
             self.player.draw(self.screen, render_scroll)
         for fish in self.pufferfish:
+            if fish.get_rect().colliderect(self.player.get_rect()):
+                self.player.die()
             fish.draw(self.screen, render_scroll)
         for fish in self.nautilus:
+            if fish.get_rect().colliderect(self.player.get_rect()):
+                self.player.die()
             fish.draw(self.screen, render_scroll)
         self.tile_map.draw(self.screen, render_scroll)
+
+        self.update_kickup(render_scroll)
+        self.update_sparks(render_scroll)
+        for shockwave in self.shockwaves.copy():
+            pygame.draw.circle(self.screen, shockwave[2], (shockwave[0][0] - render_scroll[0], shockwave[0][1] - render_scroll[1]), min(shockwave[4] * 1.5, shockwave[1] * 1.5), int(math.ceil(max(1, shockwave[4] - shockwave[1]) / 4)))
+            if shockwave[1] - 1 > shockwave[4]:
+                if type(shockwave[2]) == tuple:
+                    shockwave[2] = list(shockwave[2])
+                shockwave[2][0] = max(shockwave[2][0] - 50 * self.dt, 0)
+                shockwave[2][1] = max(shockwave[2][1] - 50 * self.dt, 0)
+                shockwave[2][2] = max(shockwave[2][2] - 50 * self.dt, 0)
+                if shockwave[2][2] == 0 and shockwave[2][1] == 0 and shockwave[2][0] == 0:
+                    self.shockwaves.remove(shockwave)
+            else:
+                shockwave[1] += max(0, min(20, 150 * (shockwave[4] * 0.01) / max(0.0001, shockwave[1] * 2))) * self.dt * shockwave[3]
+        for i, bit in sorted(enumerate(self.smoke), reverse=True):
+            bit.update(self.dt)
+            if bit.timer > SMOKE_DELAY // FADE:
+                self.smoke.pop(i)
+            bit.draw(self.screen, render_scroll)
+        self.update_fire(render_scroll)
 
         self.player.water = False
         if self.active:

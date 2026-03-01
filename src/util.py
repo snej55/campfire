@@ -69,6 +69,6 @@ def load_palette(img: pygame.Surface):
     for row in img_array:
         for color in row:
             c = img.unmap_rgb(color)
-            if c != (0, 0, 0, 0):
+            if c != (0, 0, 0, 0) and c != (0, 0, 0, 255):
                 palette.append(tuple(c))
     return palette

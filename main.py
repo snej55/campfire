@@ -44,6 +44,9 @@ class App:
 
         self.assets = {
             "tiles/grass": load_tile_imgs("tiles/final_grass.png", TILE_SIZE),
+            "tiles/underwater_grass": load_tile_imgs("tiles/underwater_grass.png", TILE_SIZE),
+            "tiles/purple": load_tile_imgs("tiles/purple.png", TILE_SIZE),
+            "tiles/large_decor": load_animation("tiles/large_decor.png", 48, 48, 7),
             "player/run": load_animation("player/run.png", 8, 8, 10),
             "player/idle_1": load_animation("player/idle_1.png", 8, 8, 5),
             "player/idle_2": load_animation("player/idle_2.png", 8, 8, 8),

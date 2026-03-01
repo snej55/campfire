@@ -1,4 +1,4 @@
-import pygame, os, json
+import pygame, os, json, math
 
 BASE_IMG_PATH = "data/images/"
 BASE_AUDIO_PATH = "data/audio/"
@@ -19,6 +19,14 @@ def load_images(path):
 
 def load_sound(path) -> pygame.mixer.Sound:
     return pygame.mixer.Sound(BASE_AUDIO_PATH + path)
+
+
+def load_animation(path, xsize, y, length):
+    sheet = load_image(path)
+    animation = []
+    for x in range(length):
+        animation.append(snip(sheet, [x * xsize, 0], [xsize, y]))
+    return animation
 
 
 def load_tile_imgs(path, tile_size):

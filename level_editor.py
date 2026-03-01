@@ -98,7 +98,6 @@ class Editor:
         self.first_click = True
         self.water_click = [[0, 0], [0, 0]]
 
-
     # create new level
     def create_new(self, path):
         f = open(path, "w")
@@ -152,7 +151,17 @@ class Editor:
                 )
             for tile in self.off_grid:
                 off_grid.append({"pos": tile["pos"], "type": tile["type"], "variant": tile["variant"]})
-            json.dump({"level": {"tiles": tiles, "off_grid": off_grid, "water": [[water[0], water[1], water[2], water[3]] for water in self.water]}}, f, separators=(",", ":"))
+            json.dump(
+                {
+                    "level": {
+                        "tiles": tiles,
+                        "off_grid": off_grid,
+                        "water": [[water[0], water[1], water[2], water[3]] for water in self.water],
+                    }
+                },
+                f,
+                separators=(",", ":"),
+            )
             print(f"Saved level data to `{path}`")
 
     def auto_tile(self):
@@ -293,7 +302,6 @@ class Editor:
                     tile_loc = f"{mouse_pos[0]};{mouse_pos[1]}"
                     if tile_loc in self.tile_map:
                         del self.tile_map[tile_loc]
-            
 
         # ---------- Do drawing ---------- #
         self.screen.fill((0, 0, 0))
@@ -324,7 +332,7 @@ class Editor:
                     self.assets[self.tile_list[self.tile_type]][self.tile_variant],
                     (mouse_pos[0] - self.scroll.x, mouse_pos[1] - self.scroll.y),
                 )
-            
+
         for water in self.water:
             print(water)
             pygame.draw.rect(self.screen, (0, 100, 255), water)
@@ -381,7 +389,14 @@ class Editor:
                             else:
                                 self.first_click = True
                                 self.water_click[1] = mouse_pos
-                                self.water.append(pygame.Rect(self.water_click[0][0], self.water_click[0][1], self.water_click[1][0] - self.water_click[0][0], self.water_click[1][1] - self.water_click[0][1]))
+                                self.water.append(
+                                    pygame.Rect(
+                                        self.water_click[0][0],
+                                        self.water_click[0][1],
+                                        self.water_click[1][0] - self.water_click[0][0],
+                                        self.water_click[1][1] - self.water_click[0][1],
+                                    )
+                                )
                     elif event.button == 3:
                         self.right_click = True
                         if self.water_mode:
@@ -393,7 +408,7 @@ class Editor:
                             for i, water in sorted(enumerate(self.water), reverse=True):
                                 if pygame.Rect(water).collidepoint(mouse_pos):
                                     self.water.pop(i)
-                                    
+
                     elif self.controls["l_shift"]:
                         if event.button == 4:
                             self.tile_variant = (self.tile_variant - 1) % len(self.assets[self.tile_list[self.tile_type]])

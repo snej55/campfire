@@ -25,7 +25,7 @@ if WEB_PLATFORM:
     platform.window.canvas.style.imageRendering = "pixelated"
 
 # window dimensions and scaling
-WIDTH, HEIGHT = 640, 480
+WIDTH, HEIGHT = 320, 240
 SCALE = 2
 
 
@@ -42,7 +42,10 @@ class App:
         self.dt = 1
         self.last_time = time.time() - 1 / 60
 
-        self.assets = {"tiles/grass": load_tile_imgs("tiles/solid_grass.png", TILE_SIZE)}
+        self.assets = {
+            "tiles/grass": load_tile_imgs("tiles/underwater_grass.png", TILE_SIZE),
+            "player/run": load_animation("player/run.png", 8, 8, 10),
+        }
 
         self.scroll = [0, 0]
 
@@ -68,6 +71,8 @@ class App:
 
         for water in self.tile_map.water:
             water.update(self.screen, self.player, render_scroll, self.dt)
+
+        self.screen.blit(self.assets["player/run"][int(time.time() * 30) % 10], (0, 0))
 
     # asynchronous main loop to run in browser
     async def run(self):

@@ -25,7 +25,7 @@ if WEB_PLATFORM:
     platform.window.canvas.style.imageRendering = "pixelated"
 
 # window dimensions and scaling
-WIDTH, HEIGHT = 640, 480
+WIDTH, HEIGHT = 768, 768
 SCALE = 4
 
 
@@ -54,7 +54,14 @@ class App:
             "player/idle_4": load_animation("player/idle_4.png", 8, 8, 8),
             "player/jump": load_animation("player/jump.png", 8, 8, 8),
             "player/land": load_animation("player/jump.png", 8, 8, 3),
+            "background": load_image("background.png"),
+            "player/bubble": load_animation("player/bubble.png", 12, 13, 2),
         }
+
+        surf = pygame.Surface(self.assets["background"].get_size())
+        surf.fill((0, 0, 0))
+        surf.set_alpha(100)
+        self.assets["background"].blit(surf, (0, 0))
 
         self.scroll = [0, 0]
 
@@ -77,14 +84,18 @@ class App:
 
         # do the rendering
         render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
-        self.screen.fill((0, 0, 0))
+        self.screen.blit(pygame.transform.scale(self.assets["background"], self.screen.get_size()), (0, 0))
 
+        self.tile_map.draw_decor(self.screen, render_scroll)
         self.player.draw(self.screen, render_scroll)
         self.tile_map.draw(self.screen, render_scroll)
 
+        self.player.water = False
         if self.active:
             for water in self.tile_map.water:
                 water.update(self.screen, self.player, render_scroll, self.dt)
+                if water.get_rect().colliderect(self.player.get_rect()):
+                    self.player.water = True
 
     # asynchronous main loop to run in browser
     async def run(self):

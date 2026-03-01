@@ -6,3 +6,6 @@
 - [ ] Add vfx
 - [ ] Add menu
 - [ ] Add grass
+- [ ] Tutorial
+- [ ] Spikes
+- [ ] Bubble particles

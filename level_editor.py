@@ -72,7 +72,7 @@ class Editor:
             "grass": self.load_tileset(pygame.image.load("data/images/tiles/final_grass.png").convert()),
             "underwater_grass": self.load_tileset(pygame.image.load("data/images/tiles/underwater_grass.png").convert()),
             "purple": self.load_tileset(pygame.image.load("data/images/tiles/purple.png").convert()),
-            "large_decor": self.load_sheet(pygame.image.load("data/images/tiles/large_decor.png").convert(), [48, 48])
+            "large_decor": self.load_sheet(pygame.image.load("data/images/tiles/large_decor.png").convert(), [48, 48]),
         }
 
         # set colorkeys
@@ -337,8 +337,7 @@ class Editor:
                 )
 
         for water in self.water:
-            print(water)
-            pygame.draw.rect(self.screen, (0, 100, 255), water)
+            pygame.draw.rect(self.screen, (0, 100, 255), (water[0] - self.scroll[0], water[1] - self.scroll[1], water[2], water[3]))
 
     def run(self):
         while self.running:

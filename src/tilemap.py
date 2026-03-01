@@ -62,12 +62,13 @@ class TileMap:
         # print(rects)
         return rects
 
-    def draw(self, surf, scroll):
+    def draw_decor(self, surf, scroll):
         for tile in self.off_grid:
             surf.blit(
                 self.app.assets[f"tiles/{tile['type']}"][tile["variant"]], (tile["pos"][0] - scroll[0], tile["pos"][1] - scroll[1])
             )
 
+    def draw(self, surf, scroll):
         for x in range(scroll[0] // self.tile_size, (scroll[0] + surf.get_width()) // self.tile_size + 1):
             for y in range(scroll[1] // self.tile_size, (scroll[1] + surf.get_height()) // self.tile_size + 1):
                 loc = str(x) + ";" + str(y)

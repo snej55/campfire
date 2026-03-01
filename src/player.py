@@ -1,32 +1,6 @@
-import pygame, math, random, time
+import pygame, random
 
-
-class Anim:
-    def __init__(self, animation, speed, looping=True):
-        self.animation = animation
-        self.speed = speed
-        self.looping = looping
-        self.finished = False
-        self.frame = 0
-        self.step = 0
-        self.flip = False
-
-    def reset(self):
-        self.finished = False
-        self.frame = 0
-        self.step = 0
-
-    def update(self, dt):
-        self.frame += self.speed * dt
-        self.step = math.floor(self.frame) % len(self.animation)
-        if not self.looping:
-            if self.frame >= len(self.animation):
-                self.finished = True
-                self.step = len(self.animation) - 1
-
-    def draw(self, surf, scroll, pos):
-        surf.blit(pygame.transform.flip(self.animation[self.step], self.flip, False), (pos[0] - scroll[0], pos[1] - scroll[1]))
-
+from .anim import Anim
 
 class Player:
     def __init__(self, app, dimensions, start_pos):
@@ -60,108 +34,118 @@ class Player:
         self.water = False
         self.angle = 0
         self.angle_vel = 0
+        self.ad = 120
+        self.death_time = 120
 
     def get_rect(self):
         return pygame.Rect(self.pos.x, self.pos.y, self.dimensions.x, self.dimensions.y)
 
     def update(self, dt, tile_map):
-        if not self.water:
-            self.falling += dt
-            self.jumping += dt
-            self.grounded += dt
+        self.ad += dt
+        if self.ad > self.death_time:
+            if not self.water:
+                self.falling += dt
+                self.jumping += dt
+                self.grounded += dt
 
-            speed = 1.3
-            if self.controls["right"]:
-                self.movement.x += speed * dt
-                self.flip = False
-            if self.controls["left"]:
-                self.movement.x -= speed * dt
-                self.flip = True
-            self.movement.x += (self.movement.x * 0.6 - self.movement.x) * dt
+                speed = 1.3
+                if self.controls["right"]:
+                    self.movement.x += speed * dt
+                    self.flip = False
+                if self.controls["left"]:
+                    self.movement.x -= speed * dt
+                    self.flip = True
+                self.movement.x += (self.movement.x * 0.6 - self.movement.x) * dt
 
-            self.movement.y += 0.23 * dt
-            self.movement.y = min(self.movement.y, 8)
+                self.movement.y += 0.23 * dt
+                self.movement.y = min(self.movement.y, 8)
 
-            if self.falling < 5:
-                if self.jumping < 15:
-                    self.movement.y = -3.6
-                    self.falling = 6
-                    self.jumping = 30
+                if self.falling < 5:
+                    if self.jumping < 15:
+                        self.movement.y = -3.6
+                        self.falling = 6
+                        self.jumping = 30
 
-            fm = pygame.Vector2(self.movement.x * dt, self.movement.y * dt)
+                fm = pygame.Vector2(self.movement.x * dt, self.movement.y * dt)
 
-            self.pos.x += fm.x
-            r = self.get_rect()
-            for rect in tile_map.physics_rects_around(r.center):
-                if r.colliderect(rect):
-                    if fm.x > 0:
-                        r.right = rect.left
-                    if fm.x < 0:
-                        r.left = rect.right
-                    self.pos.x = r.x
-                    self.movement.x = 0
+                self.pos.x += fm.x
+                r = self.get_rect()
+                for rect in tile_map.physics_rects_around(r.center):
+                    if r.colliderect(rect):
+                        if fm.x > 0:
+                            r.right = rect.left
+                        if fm.x < 0:
+                            r.left = rect.right
+                        self.pos.x = r.x
+                        self.movement.x = 0
 
-            self.pos.y += fm.y
-            r = self.get_rect()
-            for rect in tile_map.physics_rects_around(r.center):
-                if r.colliderect(rect):
-                    if fm.y >= 0:
-                        r.bottom = rect.top
-                        self.falling = 0
-                    elif fm.y < 0:
-                        r.top = rect.bottom
-                    self.movement.y = 0
-                    self.pos.y = r.y
-            self.handle_animation(dt)
-            self.dimensions = pygame.Vector2(6, 7)
-        else:
-            self.dimensions = pygame.Vector2(12, 13)
-            speed = 0.08
-            if self.controls["right"]:
-                self.movement.x += speed * dt
-                self.angle_vel -= 0.5 * dt
-                self.flip = False
-            if self.controls["left"]:
-                self.movement.x -= speed * dt
-                self.angle_vel += 0.5 * dt
-                self.flip = True
-            if self.controls["up"]:
-                self.movement.y -= speed * dt
-            if self.controls["down"]:
-                self.movement.y += speed * dt
+                self.pos.y += fm.y
+                r = self.get_rect()
+                for rect in tile_map.physics_rects_around(r.center):
+                    if r.colliderect(rect):
+                        if fm.y >= 0:
+                            r.bottom = rect.top
+                            self.falling = 0
+                        elif fm.y < 0:
+                            r.top = rect.bottom
+                        self.movement.y = 0
+                        self.pos.y = r.y
+                self.handle_animation(dt)
+                self.dimensions = pygame.Vector2(6, 7)
+            else:
+                self.dimensions = pygame.Vector2(12, 13)
+                speed = 0.08
+                if self.controls["right"]:
+                    self.movement.x += speed * dt
+                    self.angle_vel -= 0.5 * dt
+                    self.flip = False
+                if self.controls["left"]:
+                    self.movement.x -= speed * dt
+                    self.angle_vel += 0.5 * dt
+                    self.flip = True
+                if self.controls["up"]:
+                    self.movement.y -= speed * dt
+                if self.controls["down"]:
+                    self.movement.y += speed * dt
 
-            self.movement.x += (self.movement.x * 0.95 - self.movement.x) * dt
-            self.movement.y += 0.01 * dt
-            self.movement.y += (self.movement.y * 0.95 - self.movement.y) * dt
-            self.angle += self.angle_vel
-            self.angle_vel += (self.angle_vel * 0.95 - self.angle_vel) * dt
-            self.angle += (0 - self.angle) * 0.02 * dt
-            self.angle = self.angle % 360
+                self.movement.x += (self.movement.x * 0.95 - self.movement.x) * dt
+                self.movement.y += 0.01 * dt
+                self.movement.y += (self.movement.y * 0.95 - self.movement.y) * dt
+                self.angle += self.angle_vel
+                self.angle_vel += (self.angle_vel * 0.95 - self.angle_vel) * dt
+                self.angle += (0 - self.angle) * 0.02 * dt
+                self.angle = self.angle % 360
 
-            fm = pygame.Vector2(self.movement.x * dt, self.movement.y * dt)
+                fm = pygame.Vector2(self.movement.x * dt, self.movement.y * dt)
 
-            self.pos.x += fm.x
-            r = self.get_rect()
-            for rect in tile_map.physics_rects_around(r.center):
-                if r.colliderect(rect):
-                    if fm.x > 0:
-                        r.right = rect.left
-                    if fm.x < 0:
-                        r.left = rect.right
-                    self.pos.x = r.x
-                    self.movement.x = 0
+                self.pos.x += fm.x
+                r = self.get_rect()
+                for rect in tile_map.physics_rects_around(r.center):
+                    if r.colliderect(rect):
+                        if fm.x > 0:
+                            r.right = rect.left
+                        if fm.x < 0:
+                            r.left = rect.right
+                        self.pos.x = r.x
+                        self.movement.x = 0
 
-            self.pos.y += fm.y
-            r = self.get_rect()
-            for rect in tile_map.physics_rects_around(r.center):
-                if r.colliderect(rect):
-                    if fm.y >= 0:
-                        r.bottom = rect.top
-                        self.falling = 0
-                    elif fm.y < 0:
-                        r.top = rect.bottom
-                    self.movement.y = 0
-                    self.pos.y = r.y
+                self.pos.y += fm.y
+                r = self.get_rect()
+                for rect in tile_map.physics_rects_around(r.center):
+                    if r.colliderect(rect):
+                        if fm.y >= 0:
+                            r.bottom = rect.top
+                            self.falling = 0
+                        elif fm.y < 0:
+                            r.top = rect.bottom
+                        self.movement.y = 0
+                        self.pos.y = r.y
+            for rect in tile_map.danger_rects_around(self.get_rect().center):
+                if rect.colliderect(self.get_rect()):
+                    self.ad = 0
+                    self.pos = pygame.Vector2(self.start_pos)
+                    self.movement = pygame.Vector2(0, 0)
+                    self.app.screen_shake = max(self.app.screen_shake, 16)
 
     def handle_animation(self, dt):
         if self.falling > 5:

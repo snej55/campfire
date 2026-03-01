@@ -10,6 +10,7 @@ import asyncio, pygame, time, sys, platform
 from src.util import *
 from src.tilemap import *
 from src.player import *
+from src.enemies import *
 
 pygame.init()
 pygame.mixer.init()
@@ -47,6 +48,7 @@ class App:
             "tiles/underwater_grass": load_tile_imgs("tiles/underwater_grass.png", TILE_SIZE),
             "tiles/purple": load_tile_imgs("tiles/purple.png", TILE_SIZE),
             "tiles/large_decor": load_animation("tiles/large_decor.png", 48, 48, 7),
+            "tiles/spikes": load_animation("tiles/spikes.png", 12, 12, 4),
             "player/run": load_animation("player/run.png", 8, 8, 10),
             "player/idle_1": load_animation("player/idle_1.png", 8, 8, 5),
             "player/idle_2": load_animation("player/idle_2.png", 8, 8, 8),
@@ -56,6 +58,7 @@ class App:
             "player/land": load_animation("player/jump.png", 8, 8, 3),
             "background": load_image("background.png"),
             "player/bubble": load_animation("player/bubble.png", 12, 13, 2),
+            "pufferfish": load_animation("pufferfish.png", 16, 13, 3)
         }
 
         surf = pygame.Surface(self.assets["background"].get_size())
@@ -68,7 +71,14 @@ class App:
         self.tile_map = TileMap(self)
         self.tile_map.load("data/maps/0.json")
 
+        self.pufferfish = []
+        for loc in self.tile_map.tile_map.copy():
+            if self.tile_map.tile_map[loc]["type"] == "pufferfish":
+                self.pufferfish.append(Pufferfish(self, [self.tile_map.tile_map[loc]["pos"][0] * TILE_SIZE, self.tile_map.tile_map[loc]["pos"][1] * TILE_SIZE], self.assets["pufferfish"]))
+                del self.tile_map.tile_map[loc]
+
         self.player = Player(self, [6, 7], [20, 15])
+        self.screen_shake = 0
 
     # put all the game stuff here
     def update(self):
@@ -79,15 +89,24 @@ class App:
 
         self.player.update(self.dt, self.tile_map)
 
-        self.scroll[0] += (self.player.get_rect().centerx - self.screen.get_width() * 0.5 - self.scroll[0]) / 30 * self.dt
-        self.scroll[1] += (self.player.get_rect().centery - self.screen.get_height() * 0.5 - self.scroll[1]) / 30 * self.dt
+        if self.player.ad > self.player.death_time:
+            self.scroll[0] += (self.player.get_rect().centerx - self.screen.get_width() * 0.5 - self.scroll[0]) / 30 * self.dt
+            self.scroll[1] += (self.player.get_rect().centery - self.screen.get_height() * 0.5 - self.scroll[1]) / 30 * self.dt
+        
+        for fish in self.pufferfish:
+            fish.update(self.dt, self.player)
 
         # do the rendering
-        render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+        screen_shake_offset = (random.random() * self.screen_shake - self.screen_shake / 2, random.random() * self.screen_shake - self.screen_shake / 2)
+        render_scroll = (int(self.scroll[0] + screen_shake_offset[0]), int(self.scroll[1] + screen_shake_offset[1]))
+        self.screen_shake = max(0, self.screen_shake - 1 * self.dt)
         self.screen.blit(pygame.transform.scale(self.assets["background"], self.screen.get_size()), (0, 0))
 
         self.tile_map.draw_decor(self.screen, render_scroll)
-        self.player.draw(self.screen, render_scroll)
+        if self.player.ad > self.player.death_time:
+            self.player.draw(self.screen, render_scroll)
+        for fish in self.pufferfish:
+            fish.draw(self.screen, render_scroll)
         self.tile_map.draw(self.screen, render_scroll)
 
         self.player.water = False

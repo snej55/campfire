@@ -73,6 +73,8 @@ class Editor:
             "underwater_grass": self.load_tileset(pygame.image.load("data/images/tiles/underwater_grass.png").convert()),
             "purple": self.load_tileset(pygame.image.load("data/images/tiles/purple.png").convert()),
             "large_decor": self.load_sheet(pygame.image.load("data/images/tiles/large_decor.png").convert(), [48, 48]),
+            "spikes": self.load_sheet(pygame.image.load("data/images/tiles/spikes.png").convert(), [12, 12]),
+            "pufferfish": self.load_sheet(pygame.image.load("data/images/pufferfish.png").convert(), [16, 13])
         }
 
         # set colorkeys
@@ -309,6 +311,8 @@ class Editor:
         # ---------- Do drawing ---------- #
         self.screen.fill((0, 0, 0))
         self.draw_grid()
+        for water in self.water:
+            pygame.draw.rect(self.screen, (0, 100, 255), (water[0] - self.scroll[0], water[1] - self.scroll[1], water[2], water[3]))
         for tile in self.off_grid:  # tile: [pos, type, variant] absolute pos
             self.screen.blit(
                 self.assets[tile["type"]][tile["variant"]], (tile["pos"][0] - self.scroll.x, tile["pos"][1] - self.scroll.y)
@@ -336,8 +340,6 @@ class Editor:
                     (mouse_pos[0] - self.scroll.x, mouse_pos[1] - self.scroll.y),
                 )
 
-        for water in self.water:
-            pygame.draw.rect(self.screen, (0, 100, 255), (water[0] - self.scroll[0], water[1] - self.scroll[1], water[2], water[3]))
 
     def run(self):
         while self.running:

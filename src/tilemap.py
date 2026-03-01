@@ -5,7 +5,7 @@ from .water import Water
 TILE_SIZE = 12
 OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (0, 0)}
 PHYSICS_TILES = {"grass", "underwater_grass", "purple"}
-
+DANGER_TILES = ["spikes"]
 
 class TileMap:
     def __init__(self, app):
@@ -56,6 +56,16 @@ class TileMap:
         rects = []
         for tile in self.tiles_around(pos):
             if tile["type"] in PHYSICS_TILES:
+                rects.append(
+                    pygame.Rect(tile["pos"][0] * self.tile_size, tile["pos"][1] * self.tile_size, self.tile_size, self.tile_size)
+                )
+        # print(rects)
+        return rects
+    
+    def danger_rects_around(self, pos):
+        rects = []
+        for tile in self.tiles_around(pos):
+            if tile["type"] in DANGER_TILES:
                 rects.append(
                     pygame.Rect(tile["pos"][0] * self.tile_size, tile["pos"][1] * self.tile_size, self.tile_size, self.tile_size)
                 )

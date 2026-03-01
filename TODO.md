@@ -9,3 +9,10 @@
 - [ ] Tutorial
 - [ ] Spikes
 - [ ] Bubble particles
+- [ ] Fireflies
+- [ ] Explosions
+
+2. Puffer fish
+3. Explosions
+4. Lighting
+5. Menu/Turn into game

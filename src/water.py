@@ -49,11 +49,11 @@ class Water:
         line = points.copy()
         points.append((self.x + self.dimensions[0] - scroll[0] - 1, self.y + self.dimensions[1] - scroll[1] - 1))
         points.append((self.x - scroll[0], self.y + self.dimensions[1] - scroll[1] - 1))
-        pygame.draw.polygon(water_surf, (138, 184, 172), points)
-        pygame.draw.lines(water_surf, (230, 215, 204), False, line, width=1)
+        pygame.draw.polygon(water_surf, (0, 153, 219), points)
+        pygame.draw.lines(water_surf, (255, 255, 255), False, line, width=1)
         water_surf.convert()
         water_surf.set_colorkey((0, 0, 0))
-        water_surf.set_alpha(150)
+        water_surf.set_alpha(120)
         surf.blit(water_surf, (0, 0))
         if player.get_rect().colliderect(self.get_rect()):
             player.falling = 0

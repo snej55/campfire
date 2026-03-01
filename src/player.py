@@ -189,6 +189,7 @@ class Player:
             )
         self.app.shockwaves.append([list(self.get_rect().center), 0.01, (230, 215, 204), 1.2, 25])
         self.pos = pygame.Vector2(self.start_pos)
+        self.app.assets["splash"].play()
 
     def handle_animation(self, dt):
         if self.falling > 5:

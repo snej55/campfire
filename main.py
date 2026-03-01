@@ -72,7 +72,9 @@ class App:
             "logo": load_image("logo.png"),
             "button": load_image("play.png"),
             "flag": load_image("flag.png"),
-            "win": load_image("you_win.png")
+            "win": load_image("you_win.png"),
+            "splash": load_sound("splash.ogg"),
+            "fall": load_sound("jump.ogg")
         }
 
         self.music = ["data/audio/dry_music.ogg", "data/audio/wet_music_loop.ogg", "data/audio/dry_music_2.ogg", "data/audio/wet_music_2_loop.ogg"]

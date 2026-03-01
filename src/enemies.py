@@ -147,6 +147,7 @@ class Nautilus:
                     a * 60 / amount,
                 )
             )
+            self.app.assets["fall"].play()
 
     def update(self, dt, player):
         self.anim.update(dt)

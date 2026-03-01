@@ -66,6 +66,8 @@ class App:
             "shell": load_image("shell.png"),
             "fire": load_animation("fire.png", 5, 5, 9),
             "light": load_image("light.png"),
+            "logo": load_image("logo.png"),
+            "button": load_image("play.png")
         }
 
         self.kickup_palette = load_palette(self.assets["pin"])
@@ -117,6 +119,11 @@ class App:
 
         self.player = Player(self, [6, 7], [20, 15])
         self.screen_shake = 0
+
+        self.menu_screen = True
+        self.button_size = 1
+        self.button_size_vel = 1
+        self.hover = False
 
     def update_fire(self, render_scroll):
         # [pos, frame]
@@ -273,6 +280,26 @@ class App:
                 if water.get_rect().colliderect(self.player.get_rect()):
                     self.player.water = True
 
+    def menu(self):
+        self.screen.blit(pygame.transform.scale(self.assets["background"], self.screen.get_size()), (0, 0))
+        self.screen.blit(pygame.transform.scale(self.assets["logo"], self.screen.get_size()), (0, 0))
+
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = list(mouse_pos)
+        mouse_pos[0] /= SCALE
+        mouse_pos[1] /= SCALE
+
+        highlighted = False
+        rect = pygame.Rect(self.screen.get_width() * 0.5 - self.assets["button"].get_width() * 0.5 * 1.1, self.screen.get_height() * 0.85 - self.assets["button"].get_height() * 0.5 * 1.1, self.assets["button"].get_width() * 1.1, self.assets["button"].get_height() * 1.1)
+        if rect.collidepoint(mouse_pos):
+            highlighted = True
+        self.hover = highlighted
+        size = 1 + 0.2 * int(highlighted)
+        self.button_size_vel += (size - self.button_size) * 0.2 * self.dt
+        self.button_size += self.button_size_vel * self.dt
+        self.button_size_vel += (self.button_size_vel * 0.2 - self.button_size_vel) * self.dt
+        self.screen.blit(pygame.transform.scale_by(self.assets["button"], self.button_size), (self.screen.get_width() * 0.5 - self.assets["button"].get_width() * 0.5 * self.button_size, self.screen.get_height() * 0.85 - self.assets["button"].get_height() * 0.5 * self.button_size))
+
     # asynchronous main loop to run in browser
     async def run(self):
         while True:
@@ -286,6 +313,10 @@ class App:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
                     # self.alpha = pygame.Surface(self.screen.get_size())
                     # self.alpha.fill((0, 0, 0))
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        if self.hover:
+                            self.menu_screen = False
                 if event.type == pygame.KEYDOWN:
                     if event.key in {pygame.K_UP, pygame.K_w, pygame.K_SPACE}:
                         self.player.controls["up"] = True
@@ -296,6 +327,8 @@ class App:
                         self.player.controls["right"] = True
                     elif event.key in {pygame.K_LEFT, pygame.K_a}:
                         self.player.controls["left"] = True
+                    elif event.key == pygame.K_RETURN:
+                        self.menu_screen = False
                 if event.type == pygame.KEYUP:
                     if event.key in {pygame.K_UP, pygame.K_w, pygame.K_SPACE}:
                         self.player.controls["up"] = False
@@ -305,8 +338,12 @@ class App:
                         self.player.controls["right"] = False
                     elif event.key in {pygame.K_LEFT, pygame.K_a}:
                         self.player.controls["left"] = False
+
             # update game
-            self.update()
+            if self.menu_screen:
+                self.menu()
+            else:
+                self.update()
 
             # check if tab is focused if running through web (avoid messing up dt and stuff)
             if WEB_PLATFORM:

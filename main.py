@@ -25,8 +25,8 @@ if WEB_PLATFORM:
     platform.window.canvas.style.imageRendering = "pixelated"
 
 # window dimensions and scaling
-WIDTH, HEIGHT = 320, 240
-SCALE = 2
+WIDTH, HEIGHT = 640, 480
+SCALE = 4
 
 
 class App:
@@ -45,6 +45,12 @@ class App:
         self.assets = {
             "tiles/grass": load_tile_imgs("tiles/underwater_grass.png", TILE_SIZE),
             "player/run": load_animation("player/run.png", 8, 8, 10),
+            "player/idle_1": load_animation("player/idle_1.png", 8, 8, 5),
+            "player/idle_2": load_animation("player/idle_2.png", 8, 8, 8),
+            "player/idle_3": load_animation("player/idle_3.png", 8, 8, 5),
+            "player/idle_4": load_animation("player/idle_4.png", 8, 8, 8),
+            "player/jump": load_animation("player/jump.png", 8, 8, 8),
+            "player/land": load_animation("player/jump.png", 8, 8, 3)
         }
 
         self.scroll = [0, 0]
@@ -52,15 +58,19 @@ class App:
         self.tile_map = TileMap(self)
         self.tile_map.load("data/maps/0.json")
 
-        self.player = Player(self, [8, 12], [20, 15])
+        self.player = Player(self, [6, 7], [20, 15])
 
     # put all the game stuff here
     def update(self):
         # update delta time
         self.dt = (time.time() - self.last_time) * 60
+        self.dt = min(self.dt, 3)
         self.last_time = time.time()
 
         self.player.update(self.dt, self.tile_map)
+
+        self.scroll[0] += (self.player.get_rect().centerx - self.screen.get_width() * 0.5 - self.scroll[0]) / 30 * self.dt
+        self.scroll[1] += (self.player.get_rect().centery - self.screen.get_height() * 0.5 - self.scroll[1]) / 30 * self.dt
 
         # do the rendering
         render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
@@ -69,10 +79,11 @@ class App:
         self.player.draw(self.screen, render_scroll)
         self.tile_map.draw(self.screen, render_scroll)
 
-        for water in self.tile_map.water:
-            water.update(self.screen, self.player, render_scroll, self.dt)
+        if self.active:
+            for water in self.tile_map.water:
+                water.update(self.screen, self.player, render_scroll, self.dt)
 
-        self.screen.blit(self.assets["player/run"][int(time.time() * 30) % 10], (0, 0))
+        self.screen.blit(self.assets["player/run"][int(time.time() * 3) % 10], (0, 0))
 
     # asynchronous main loop to run in browser
     async def run(self):

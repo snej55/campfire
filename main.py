@@ -29,7 +29,7 @@ if WEB_PLATFORM:
 
 # window dimensions and scaling
 WIDTH, HEIGHT = 768, 768
-SCALE = 2
+SCALE = 4
 NUM_LEVELS = 6
 
 pygame.mixer.music.load("data/audio/menu_loop.ogg")
